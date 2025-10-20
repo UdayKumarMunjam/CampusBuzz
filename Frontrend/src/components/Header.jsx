@@ -3,7 +3,7 @@ import { GraduationCap } from 'lucide-react';
 
 export default function Header({ onGetStarted, textColor = 'text-white', bgColor = 'bg-transparent', buttonColor = 'bg-blue-600 hover:bg-blue-700' }) {
   return (
-    <nav className={`sticky top-0 left-0 right-0 z-50 ${bgColor}`}>
+    <nav className={`absolute top-0 left-0 right-0 z-50 ${bgColor}`}>
       <div className="max-w-6xl mx-auto px-4 flex justify-between items-center h-16">
         <div className="flex items-center space-x-2">
           <div className="p-2 bg-blue-600 rounded-lg shadow-lg">

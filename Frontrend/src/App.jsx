@@ -111,15 +111,39 @@ function App() {
 
           <main className="flex-1 lg:ml-64 pt-16 lg:pt-0">
             <Routes>
-              <Route
-                path="/"
-                element={user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/feed" />}
-              />
-              <Route path="/feed" element={<Feed user={user} />} />
-              <Route path="/messages" element={<Messages user={user} />} />
-              <Route path="/messages/:conversationId" element={<Conversation user={user} />} />
-              {/* Catch all route for unmatched paths - redirect to feed */}
-              <Route path="*" element={<Navigate to="/feed" />} />
+             <Route
+               path="/"
+               element={user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/feed" />}
+             />
+             <Route path="/feed" element={<Feed user={user} />} />
+             <Route path="/messages" element={<Messages user={user} />} />
+             <Route path="/messages/:conversationId" element={<Conversation user={user} />} />
+             <Route path="/events" element={<Events user={user} />} />
+             <Route path="/clubs" element={<Clubs />} />
+             <Route path="/clubs/:clubId" element={<ClubDetails user={user} />} />
+             <Route path="/clubs/:clubId/members" element={<ClubMembers user={user} />} />
+             <Route path="/clubs/:clubId/about" element={<ClubAbout user={user} />} />
+             <Route path="/clubs/:clubId/activities" element={<ClubActivities user={user} />} />
+             <Route path="/clubs/:clubId/manage" element={<ClubManagement user={user} />} />
+             <Route path="/achievements" element={<Achievements user={user} />} />
+             <Route path="/achievements/add" element={<AddAchievement user={user} />} />
+             <Route
+               path="/achievements/:category"
+               element={<AchievementCategory user={user} />}
+             />
+             <Route path="/e-notice" element={<ENotice user={user} />} />
+             <Route path="/lost-found" element={<LostFound user={user} />} />
+             <Route path="/lostfound/resolve/:id" element={<LostFound user={user} />} />
+             <Route path="/profile/:userId" element={<UserProfile />} />
+             <Route path="/profile/:userId/followers" element={<FollowersList />} />
+             <Route path="/profile/:userId/following" element={<FollowingList />} />
+             <Route path="/settings" element={<Settings />} />
+             <Route
+               path="/admin"
+               element={user.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" />}
+             />
+             {/* Catch all route for unmatched paths - redirect to feed */}
+             <Route path="*" element={<Navigate to="/feed" />} />
               <Route path="/events" element={<Events user={user} />} />
               <Route path="/clubs" element={<Clubs />} />
               <Route path="/clubs/:clubId" element={<ClubDetails user={user} />} />

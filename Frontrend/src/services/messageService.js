@@ -70,5 +70,18 @@ export const messageService = {
       console.error('Error searching users:', error);
       throw error;
     }
+  },
+
+  // Delete a message
+  deleteMessage: async (messageId) => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/messages/${messageId}`, {
+        withCredentials: true
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      throw error;
+    }
   }
 };

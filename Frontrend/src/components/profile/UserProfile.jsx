@@ -12,16 +12,10 @@ import {
 import BackButton from "../common/BackButton";
 import { useFeedStore } from "../../stores/feedStore";
 import { useAuthStore } from "../../stores/authStore";
+import { getLetterAvatar } from "../../Utils/avatarUtils";
 import PostCard from "../PostCard";
 
-const defaultAvatar =
-  "data:image/svg+xml;base64," +
-  btoa(`
-<svg width="128" height="128" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="8" r="4" fill="#6B7280"/>
-  <path d="M12 14c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z" fill="#6B7280"/>
-</svg>
-`);
+// Removed defaultAvatar as we now use getLetterAvatar utility
 
 export default function UserProfile() {
   const { userId } = useParams();
@@ -109,9 +103,12 @@ export default function UserProfile() {
             <div className="flex flex-col items-center lg:items-start relative">
               <div className="relative">
                 <img
-                  src={user.avatar || defaultAvatar}
+                  src={user.avatar || getLetterAvatar(user.name)}
                   alt={user.name}
                   className="w-24 h-24 lg:w-32 lg:h-32 rounded-full object-cover border-4 border-gradient-to-r from-blue-400 to-purple-500 shadow-lg"
+                  onError={(e) => {
+                    e.target.src = getLetterAvatar(user.name);
+                  }}
                 />
               </div>
             </div>

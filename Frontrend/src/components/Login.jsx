@@ -18,7 +18,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 via-blue-200 via-blue-400 to-blue-600 flex items-center justify-center px-4">
       <Toaster position="top-right" reverseOrder={false} />
 
       <div className="max-w-md w-full space-y-8">

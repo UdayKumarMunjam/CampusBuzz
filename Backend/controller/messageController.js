@@ -130,6 +130,33 @@ export const sendMessage = async (req, res) => {
   }
 };
 
+// Delete a message
+export const deleteMessage = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { messageId } = req.params;
+
+    // Find the message and ensure the user is the sender
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found', success: false });
+    }
+
+    // Allow both sender and receiver to delete messages (for better UX)
+    if (message.sender.toString() !== userId.toString() && message.receiver.toString() !== userId.toString()) {
+      return res.status(403).json({ message: 'You can only delete messages in conversations you are part of', success: false });
+    }
+
+    // Delete the message
+    await Message.findByIdAndDelete(messageId);
+
+    return res.status(200).json({ message: 'Message deleted successfully', success: true });
+  } catch (error) {
+    console.error('DeleteMessage error:', error);
+    return res.status(500).json({ message: 'Server error', success: false });
+  }
+};
+
 // Get unread message count for user
 export const getUnreadCount = async (req, res) => {
   try {

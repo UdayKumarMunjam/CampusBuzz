@@ -6,30 +6,12 @@ import { useEventsStore } from '../stores/eventStore';
 import { useAuthStore } from '../stores/authStore';
 import toast from 'react-hot-toast';
 import { timeAgo } from '../Utils/timeAgo.js';
+import { getLetterAvatar } from '../Utils/avatarUtils';
 import MediaCarousel from '../components/MediaCarousel';
 
-// Function to generate avatar with initials
-const generateInitialsAvatar = (name) => {
-  const names = name.split(' ');
-  const initials = names.length >= 2
-    ? names[0].charAt(0).toUpperCase() + names[1].charAt(0).toUpperCase()
-    : names[0].charAt(0).toUpperCase();
+// Removed generateInitialsAvatar as we now use getLetterAvatar utility
 
-  return "data:image/svg+xml;base64," + btoa(`
-<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="20" cy="20" r="20" fill="#E5E7EB"/>
-  <text x="20" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#374151">${initials}</text>
-</svg>
-`);
-};
-
-const defaultAvatar =
-  "data:image/svg+xml;base64," +
-  btoa(`
-<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 9H14V4H19V9Z" fill="#6B7280"/>
-</svg>
-`);
+// Removed defaultAvatar as we now use getLetterAvatar utility
 
 export default function AdminDashboard() {
   const { users, fetchUsers, addUser, editUser, deleteUser, isUpdating } = useAdminUserStore();
@@ -49,6 +31,7 @@ export default function AdminDashboard() {
     club: ''
   });
   const [emailError, setEmailError] = useState('');
+  const [expandedPosts, setExpandedPosts] = useState(new Set());
 
   const clubs = [
     { label: 'Code Club', value: 'code_club' },
@@ -214,7 +197,7 @@ export default function AdminDashboard() {
               {filteredUsers.map((user) => (
                 <div key={user._id} className="flex justify-between items-center p-4 border border-gray-200 rounded-xl hover:shadow-lg transition-all duration-200 bg-gradient-to-r from-white to-slate-50 hover:from-blue-50 hover:to-purple-50">
                   <div className="flex items-center space-x-4">
-                    <img src={!user.avatar || user.avatar === 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0QzE0IDUuMSAxMy4xIDYgMTIgNkMxMC45IDYgMTAgNS4xIDEwIDRDMTAgMi45IDEwLjkgMiAxMiAyWk0yMSAxOVYyMEgzVjE5QzMgMTYuMzMgNS4zMyAxNCA4IDE0SDE2QzE4LjY3IDE0IDIxIDE2LjMzIDIxIDE5WiIgZmlsbD0iIzAwMDAwMCIvPgo8L3N2Zz4K' ? generateInitialsAvatar(user.name) : user.avatar} alt={user.name} className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-sm" />
+                    <img src={user.avatar || getLetterAvatar(user.name)} alt={user.name} className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-sm" onError={(e) => { e.target.src = getLetterAvatar(user.name); }} />
                     <div>
                       <p className="font-semibold text-gray-800">{user.name}</p>
                       <p className="text-sm text-gray-600">{user.email}</p>
@@ -253,7 +236,7 @@ export default function AdminDashboard() {
                 <div key={post._id} className="p-4 border border-gray-200 rounded-xl hover:shadow-lg transition-all duration-200 bg-gradient-to-r from-white to-slate-50 hover:from-emerald-50 hover:to-blue-50">
                   <div className="flex justify-between items-center mb-3">
                     <div className="flex items-center space-x-3">
-                      <img src={!post.userId?.avatar || post.userId.avatar === 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0QzE0IDUuMSAxMy4xIDYgMTIgNkMxMC45IDYgMTAgNS4xIDEwIDRDMTAgMi45IDEwLjkgMiAxMiAyWk0yMSAxOVYyMEgzVjE5QzMgMTYuMzMgNS4zMyAxNCA4IDE0SDE2QzE4LjY3IDE0IDIxIDE2LjMzIDIxIDE5WiIgZmlsbD0iIzAwMDAwMCIvPgo8L3N2Zz4K' ? generateInitialsAvatar(post.userId?.name || 'Unknown User') : post.userId.avatar} alt="user" className="w-10 h-10 rounded-full border-2 border-gray-200 shadow-sm" />
+                      <img src={post.userId?.avatar || getLetterAvatar(post.userId?.name || 'Unknown User')} alt="user" className="w-10 h-10 rounded-full border-2 border-gray-200 shadow-sm" onError={(e) => { e.target.src = getLetterAvatar(post.userId?.name || 'Unknown User'); }} />
                       <div>
                         <p className="font-semibold text-sm text-gray-800">{post.userId?.name || 'Unknown User'}</p>
                         <p className="text-xs text-gray-500">{timeAgo(post.createdAt)}</p>
@@ -264,7 +247,25 @@ export default function AdminDashboard() {
                     </button>
                   </div>
 
-                  <p className="text-sm mb-3 text-gray-700 leading-relaxed">{post.content}</p>
+                  <p className={`text-sm mb-3 text-gray-700 leading-relaxed break-words ${expandedPosts.has(post._id) ? '' : 'line-clamp-1'}`}>{post.content}</p>
+                  {post.content.length > 100 && (
+                    <button
+                      onClick={() => {
+                        setExpandedPosts(prev => {
+                          const newSet = new Set(prev);
+                          if (newSet.has(post._id)) {
+                            newSet.delete(post._id);
+                          } else {
+                            newSet.add(post._id);
+                          }
+                          return newSet;
+                        });
+                      }}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      {expandedPosts.has(post._id) ? 'Show less' : 'Read more'}
+                    </button>
+                  )}
 
                   {post.media && post.media.length > 0 && (
                     <div className="mb-3 rounded-lg overflow-hidden shadow-sm">

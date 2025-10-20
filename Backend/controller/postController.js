@@ -76,7 +76,7 @@ export const createPost = async (req, res) => {
     });
 
     // Populate the created post
-    const populatedPost = await Post.findById(post._id).populate('userId', 'name avatar role');
+    const populatedPost = await Post.findById(post._id).populate('userId', 'name avatar role').populate('comments.userId', 'name avatar');
 
     // Increment user's post count
     await User.findByIdAndUpdate(req.user._id, { $inc: { posts: 1 } });
@@ -159,7 +159,8 @@ export const getPosts = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('userId', 'name avatar role');
+      .populate('userId', 'name avatar role')
+      .populate('comments.userId', 'name avatar');
 
     const totalPosts = await Post.countDocuments();
 
@@ -198,7 +199,7 @@ export const likePost = async (req, res) => {
 
     await post.save();
 
-    const populatedPost = await Post.findById(post._id).populate('userId', 'name avatar role');
+    const populatedPost = await Post.findById(post._id).populate('userId', 'name avatar role').populate('comments.userId', 'name avatar');
 
     return res.status(200).json({ message: "Post updated successfully", post: populatedPost, success: true });
   } catch (error) {
@@ -255,6 +256,58 @@ export const addComment = async (req, res) => {
   }
 };
 
+// ✅ Delete comment from post
+export const deleteComment = async (req, res) => {
+  try {
+    const { postId, commentId } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+        success: false,
+      });
+    }
+
+    const commentIndex = post.comments.findIndex(comment => comment._id.toString() === commentId);
+    if (commentIndex === -1) {
+      return res.status(404).json({
+        message: "Comment not found",
+        success: false,
+      });
+    }
+
+    const comment = post.comments[commentIndex];
+
+    // Only comment owner or admin can delete
+    if (comment.userId.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+      return res.status(403).json({
+        message: "Unauthorized",
+        success: false,
+      });
+    }
+
+    post.comments.splice(commentIndex, 1);
+    await post.save();
+
+    const populatedPost = await Post.findById(post._id)
+      .populate('userId', 'name avatar role')
+      .populate('comments.userId', 'name avatar');
+
+    return res.status(200).json({
+      message: "Comment deleted successfully",
+      post: populatedPost,
+      success: true,
+    });
+  } catch (error) {
+    console.error("Delete Comment Error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+};
+
 // ✅ Get comments for a post
 export const getComments = async (req, res) => {
   try {
@@ -302,7 +355,8 @@ export const getPostsByUser = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('userId', 'name avatar role');
+      .populate('userId', 'name avatar role')
+      .populate('comments.userId', 'name avatar');
 
     const totalPosts = await Post.countDocuments({ userId });
 

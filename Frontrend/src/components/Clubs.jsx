@@ -31,64 +31,67 @@ export default function Clubs() {
   ];
 
   return (
-    <div className="p-4 lg:p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">Clubs</h1>
-        <p className="text-gray-600">Explore communities like E-Cell and Code Club, learn new skills, and make lasting connections</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">Campus Clubs</h1>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">Discover vibrant communities, learn new skills, collaborate on exciting projects, and build lasting connections with fellow students</p>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
         {clubs.map((club) => {
           const LogoIcon = club.logo;
           return (
             <div
               key={club.id}
-              className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+              className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 cursor-pointer border border-gray-100"
               onClick={() => navigate(`/clubs/${club.id}`)}
             >
-              <div className="relative h-40 lg:h-48">
+              <div className="relative h-48 lg:h-56 overflow-hidden">
                 <img
                   src={club.image}
                   alt={club.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                 />
-                <div className={`absolute inset-0 bg-gradient-to-r ${club.gradient} opacity-80`} />
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className={`absolute inset-0 bg-gradient-to-br ${club.gradient} opacity-90`} />
+                <div className="absolute inset-0 flex items-center justify-center p-6">
                   <div className="text-center text-white">
-                    <LogoIcon className="w-12 h-12 lg:w-16 lg:h-16 mx-auto mb-2 lg:mb-4" />
-                    <h2 className="text-xl lg:text-2xl font-bold">{club.name}</h2>
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 inline-block mb-4">
+                      <LogoIcon className="w-12 h-12 lg:w-16 lg:h-16" />
+                    </div>
+                    <h2 className="text-2xl lg:text-3xl font-bold drop-shadow-lg">{club.name}</h2>
                   </div>
                 </div>
               </div>
               
-              <div className="p-4 lg:p-6">
-                <p className="text-gray-600 mb-4 text-sm lg:text-base">{club.description}</p>
-                
-                <div className="grid grid-cols-3 gap-2 lg:gap-4 mb-4">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Users className="w-4 h-4 lg:w-5 lg:h-5 text-blue-500" />
+              <div className="p-6 lg:p-8">
+                <p className="text-gray-700 mb-6 text-base leading-relaxed">{club.description}</p>
+
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <Users className="w-6 h-6 text-blue-600" />
                     </div>
-                    <p className="text-lg lg:text-2xl font-bold text-gray-800">{club.memberCount}</p>
-                    <p className="text-xs lg:text-xs text-gray-500">Members</p>
+                    <p className="text-2xl font-bold text-gray-800">{club.memberCount}</p>
+                    <p className="text-sm text-gray-600 font-medium">Members</p>
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Code className="w-4 h-4 lg:w-5 lg:h-5 text-green-500" />
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <Code className="w-6 h-6 text-green-600" />
                     </div>
-                    <p className="text-lg lg:text-2xl font-bold text-gray-800">{club.activeProjects}</p>
-                    <p className="text-xs lg:text-xs text-gray-500">Projects</p>
+                    <p className="text-2xl font-bold text-gray-800">{club.activeProjects}</p>
+                    <p className="text-sm text-gray-600 font-medium">Projects</p>
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <Calendar className="w-4 h-4 lg:w-5 lg:h-5 text-purple-500" />
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <Calendar className="w-6 h-6 text-purple-600" />
                     </div>
-                    <p className="text-lg lg:text-2xl font-bold text-gray-800">{club.upcomingEvents}</p>
-                    <p className="text-xs lg:text-xs text-gray-500">Events</p>
+                    <p className="text-2xl font-bold text-gray-800">{club.upcomingEvents}</p>
+                    <p className="text-sm text-gray-600 font-medium">Events</p>
                   </div>
                 </div>
-                
-                <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 lg:py-3 px-4 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all flex items-center justify-center space-x-2 text-sm lg:text-base">
+
+                <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
                   <span>Explore Club</span>
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -96,6 +99,7 @@ export default function Clubs() {
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );

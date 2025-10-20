@@ -2,14 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Lock, Eye, EyeOff, Camera, X } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
+import { getLetterAvatar } from '../Utils/avatarUtils';
 import toast from 'react-hot-toast';
 
-const defaultAvatar = "data:image/svg+xml;base64," + btoa(`
-<svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="8" r="4" fill="#6B7280"/>
-  <path d="M12 14c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z" fill="#6B7280"/>
-</svg>
-`);
+// Removed defaultAvatar as we now use getLetterAvatar utility
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -164,9 +160,12 @@ export default function Settings() {
                 <div className="text-center">
                   <div className="relative inline-block group">
                     <img
-                      src={profileData.avatar || user?.avatar || defaultAvatar}
+                      src={profileData.avatar || user?.avatar || getLetterAvatar(user?.name)}
                       alt={user?.name}
                       className="w-24 h-24 rounded-full object-cover border-4 border-gray-200 shadow-lg"
+                      onError={(e) => {
+                        e.target.src = getLetterAvatar(user?.name);
+                      }}
                     />
                     <label className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition-all duration-300 cursor-pointer backdrop-blur-sm">
                       <Camera className="w-6 h-6 text-white" />

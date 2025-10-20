@@ -6,42 +6,49 @@ dotenv.config({
 });
 
 const isAuthenticated = async (req, res, next) => {
-  try {
-    const token = req.cookies.token;
-    // console.log("Token from cookies:", token);
+   try {
+     console.log("Auth middleware - Checking authentication");
+     const token = req.cookies.token;
+     console.log("Auth middleware - Token present:", !!token);
 
-    if (!token) {
-      return res.status(401).json({
-        message: "User not authenticated",
-        success: false,
-      });
-    }
+     if (!token) {
+       console.log("Auth middleware - No token found in cookies");
+       return res.status(401).json({
+         message: "User not authenticated",
+         success: false,
+       });
+     }
 
-    const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
-    // console.log("Decoded JWT:", decoded);
+     console.log("Auth middleware - Verifying JWT token");
+     const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+     console.log("Auth middleware - JWT decoded successfully, userId:", decoded.userId);
 
-    // ✅ Find the user by ID from the database
-    const user = await User.findById(decoded.userId).select("-password"); // Exclude password field
+     // ✅ Find the user by ID from the database
+     console.log("Auth middleware - Looking up user in database");
+     const user = await User.findById(decoded.userId).select("-password"); // Exclude password field
 
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        success: false,
-      });
-    }
+     if (!user) {
+       console.log("Auth middleware - User not found in database for userId:", decoded.userId);
+       return res.status(404).json({
+         message: "User not found",
+         success: false,
+       });
+     }
 
-    // ✅ Store the entire user object in req.user
-    req.user = user;
+     console.log("Auth middleware - User found, proceeding with request for user:", user._id);
+     // ✅ Store the entire user object in req.user
+     req.user = user;
 
-    next(); // Proceed to the next middleware or route handler
+     next(); // Proceed to the next middleware or route handler
 
-  } catch (error) {
-    console.error("Auth error:", error);
-    return res.status(401).json({
-      message: "Invalid or expired token",
-      success: false,
-    });
-  }
-};
+   } catch (error) {
+     console.error("Auth middleware error:", error);
+     console.log("Auth middleware - Token verification failed");
+     return res.status(401).json({
+       message: "Invalid or expired token",
+       success: false,
+     });
+   }
+ };
 
 export default isAuthenticated;

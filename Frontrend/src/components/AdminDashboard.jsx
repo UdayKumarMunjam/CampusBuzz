@@ -1,37 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Users, UserPlus, Trash2, Edit3, Search, MessageSquare, Calendar, BarChart3, Settings, Crown, Heart } from "lucide-react";
+import {
+  Users,
+  UserPlus,
+  Trash2,
+  Edit3,
+  Search,
+  MessageSquare,
+  Calendar,
+  Heart,
+} from "lucide-react";
 import { useFeedStore } from "../stores/feedStore";
-import { useAdminUserStore } from "../stores/adminStore";
 import { useEventsStore } from "../stores/eventStore";
 import { timeAgo } from "../Utils/timeAgo";
+import { getLetterAvatar } from "../Utils/avatarUtils";
 import MediaCarousel from "./MediaCarousel";
 
-// Default avatar fallback
-const defaultAvatar =
-  "data:image/svg+xml;base64," +
-  btoa(`
-<svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-xmlns="http://www.w3.org/2000/svg">
-<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4
--4 1.79-4 4 1.79 4 4 4zm0 2
-c-2.67 0-8 1.34-8 4v2h16v-2
-c0-2.66-5.33-4-8-4z" fill="#6B7280"/>
-</svg>`);
-
+// Removed defaultAvatar as we now use getLetterAvatar utility
 
 export default function AdminDashboard() {
-   const { posts, fetchPosts, deletePost } = useFeedStore();
-   const { events, fetchEvents } = useEventsStore();
-   const [users, setUsers] = useState([]);
-   const [searchTerm, setSearchTerm] = useState("");
-   const [showAddUserModal, setShowAddUserModal] = useState(false);
-   const [editingUser, setEditingUser] = useState(null);
-   const [newUser, setNewUser] = useState({
-     name: "",
-     email: "",
-     role: "student",
-     club: "",
-   });
+  const { posts, fetchPosts, deletePost } = useFeedStore();
+  const { events, fetchEvents } = useEventsStore();
+
+  const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Store posts with showFull property for toggling expanded content
+  const [postStates, setPostStates] = useState([]);
 
   const clubs = [
     { label: "Code Club", value: "code_club" },
@@ -40,7 +34,6 @@ export default function AdminDashboard() {
     { label: "Cultural Club", value: "cultural_club" },
   ];
 
-  // Stats
   const stats = [
     { label: "Total Users", value: users.length, icon: Users, color: "blue" },
     { label: "Active Posts", value: posts.length, icon: MessageSquare, color: "green" },
@@ -52,8 +45,14 @@ export default function AdminDashboard() {
     fetchEvents();
   }, []);
 
-  // Normalize posts for media display
-  const normalizedPosts = posts.map(post => {
+  useEffect(() => {
+    // Add showFull field to each post (default: false)
+    if (posts.length > 0) {
+      setPostStates(posts.map((p) => ({ ...p, showFull: false })));
+    }
+  }, [posts]);
+
+  const normalizedPosts = postStates.map((post) => {
     if (post.media && post.media.length > 0) return post;
     if (post.mediaUrl) {
       return {
@@ -64,26 +63,41 @@ export default function AdminDashboard() {
     return { ...post, media: [] };
   });
 
-  const filteredUsers = users.filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredUsers = users.filter((user) =>
+    user.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getRoleColor = (role) => {
     switch (role) {
-      case "admin": return "bg-red-100 text-red-800";
-      case "teacher": return "bg-blue-100 text-blue-800";
+      case "admin":
+        return "bg-red-100 text-red-800";
+      case "teacher":
+        return "bg-blue-100 text-blue-800";
       case "club_head":
       case "code_club_head":
       case "e_cell_head":
       case "hopehouse_head":
-      case "cultural_club_head": return "bg-purple-100 text-purple-800";
-      case "student": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "cultural_club_head":
+        return "bg-purple-100 text-purple-800";
+      case "student":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getRoleDisplayName = (role) => {
-    const club = clubs.find(c => c.value + "_head" === role);
+    const club = clubs.find((c) => c.value + "_head" === role);
     if (club) return club.label;
-    return role.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase());
+    return role.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
+  const toggleShowMore = (postId) => {
+    setPostStates((prev) =>
+      prev.map((p) =>
+        p._id === postId ? { ...p, showFull: !p.showFull } : p
+      )
+    );
   };
 
   return (
@@ -93,21 +107,30 @@ export default function AdminDashboard() {
         <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
           Admin Dashboard
         </h1>
-        <p className="text-gray-600 text-lg">Manage users, monitor content, and oversee platform operations</p>
+        <p className="text-gray-600 text-lg">
+          Manage users, monitor content, and oversee platform operations
+        </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {stats.map(stat => {
+        {stats.map((stat) => {
           const Icon = stat.icon;
           const colorClasses = {
             blue: "bg-gradient-to-r from-blue-500 to-blue-600 shadow-blue-200",
-            green: "bg-gradient-to-r from-green-500 to-green-600 shadow-green-200",
-            purple: "bg-gradient-to-r from-purple-500 to-purple-600 shadow-purple-200"
+            green:
+              "bg-gradient-to-r from-green-500 to-green-600 shadow-green-200",
+            purple:
+              "bg-gradient-to-r from-purple-500 to-purple-600 shadow-purple-200",
           };
           return (
-            <div key={stat.label} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex flex-col items-start justify-between border border-gray-100">
-              <div className={`p-3 rounded-xl ${colorClasses[stat.color]} text-white mb-4 shadow-lg`}>
+            <div
+              key={stat.label}
+              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex flex-col items-start justify-between border border-gray-100"
+            >
+              <div
+                className={`p-3 rounded-xl ${colorClasses[stat.color]} text-white mb-4 shadow-lg`}
+              >
                 <Icon className="w-6 h-6" />
               </div>
               <p className="text-3xl font-bold text-gray-800">{stat.value}</p>
@@ -121,8 +144,10 @@ export default function AdminDashboard() {
         {/* User Management */}
         <div className="xl:col-span-2 bg-white shadow-xl rounded-2xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">User Management</h2>
-            <button onClick={() => { setEditingUser(null); setShowAddUserModal(true); }} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300">
+            <h2 className="text-xl font-bold text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              User Management
+            </h2>
+            <button className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300">
               <UserPlus className="w-4 h-4 mr-2" /> Add User
             </button>
           </div>
@@ -141,24 +166,45 @@ export default function AdminDashboard() {
             <table className="w-full">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">User</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Role</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Posts</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                    User
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                    Role
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                    Posts
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map(user => (
-                  <tr key={user.id} className="border-b border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200">
+                {filteredUsers.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="border-b border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200"
+                  >
                     <td className="px-6 py-4 flex items-center space-x-4">
-                      <img src={user.avatar || defaultAvatar} alt={user.name} className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-sm" />
+                      <img
+                        src={user.avatar || getLetterAvatar(user.name)}
+                        alt={user.name}
+                        className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-sm"
+                      />
                       <div>
-                        <p className="font-semibold text-gray-800">{user.name}</p>
+                        <p className="font-semibold text-gray-800">
+                          {user.name}
+                        </p>
                         <p className="text-sm text-gray-500">{user.email}</p>
                       </div>
                     </td>
                     <td>
-                      <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${getRoleColor(user.role)} shadow-sm`}>
+                      <span
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold ${getRoleColor(
+                          user.role
+                        )} shadow-sm`}
+                      >
                         {getRoleDisplayName(user.role)}
                       </span>
                     </td>
@@ -181,8 +227,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Post Management */}
-        <div className="bg-white shadow-xl rounded-2xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300">
-          <h2 className="text-xl font-bold text-gray-800 mb-6 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Post Management</h2>
+        <div className="bg-white shadow-xl rounded-2xl p-6 border border-gray-100 hover:shadow-2xl transition-all duration-300 overflow-hidden">
+          <h2 className="text-xl font-bold text-gray-800 mb-6 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+            Post Management
+          </h2>
           <div className="space-y-4 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {normalizedPosts.length === 0 ? (
               <div className="text-center py-12">
@@ -190,17 +238,34 @@ export default function AdminDashboard() {
                 <p className="text-gray-500 text-lg">No posts available</p>
               </div>
             ) : (
-              normalizedPosts.map(post => (
-                <div key={post._id || post.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 bg-gradient-to-r from-white to-gray-50">
+              normalizedPosts.map((post) => (
+                <div
+                  key={post._id || post.id}
+                  className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 bg-gradient-to-r from-white to-gray-50"
+                >
                   <div className="flex justify-between items-center mb-3">
                     <div className="flex items-center space-x-3">
-                      <img src={post.userId?.avatar || defaultAvatar} alt="user" className="w-10 h-10 rounded-full border-2 border-gray-200 shadow-sm" />
+                      <img
+                        src={post.userId?.avatar || getLetterAvatar(post.userId?.name || post.author)}
+                        alt="user"
+                        className="w-10 h-10 rounded-full border-2 border-gray-200 shadow-sm"
+                        onError={(e) => {
+                          e.target.src = getLetterAvatar(post.userId?.name || post.author);
+                        }}
+                      />
                       <div>
-                        <p className="font-semibold text-sm text-gray-800">{post.userId?.name || post.author}</p>
-                        <p className="text-xs text-gray-500">{timeAgo(post.createdAt || post.date)}</p>
+                        <p className="font-semibold text-sm text-gray-800">
+                          {post.userId?.name || post.author}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {timeAgo(post.createdAt || post.date)}
+                        </p>
                       </div>
                     </div>
-                    <button onClick={() => deletePost(post._id || post.id)} className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200">
+                    <button
+                      onClick={() => deletePost(post._id || post.id)}
+                      className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -213,11 +278,40 @@ export default function AdminDashboard() {
                   )}
 
                   {/* Post Content */}
-                  <p className="text-sm text-gray-700 mb-3 leading-relaxed">{post.content}</p>
+                  <div className="text-gray-700">
+                    {post.showFull ? (
+                      <div>
+                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{post.content}</p>
+                        <button
+                          onClick={() => toggleShowMore(post._id)}
+                          className="text-blue-500 hover:text-blue-600 cursor-pointer font-medium mt-2 text-sm"
+                        >
+                          Show less
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                          {post.content.length > 120 ? post.content.slice(0, 120) + "..." : post.content}
+                        </p>
+                        {post.content.length > 120 && (
+                          <button
+                            onClick={() => toggleShowMore(post._id)}
+                            className="text-blue-500 hover:text-blue-600 cursor-pointer font-medium text-sm"
+                          >
+                            Read more
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2 text-xs text-gray-500">
                       <Heart className="w-4 h-4 text-red-400" />
-                      <span className="font-medium">{post.likes?.length || 0} likes</span>
+                      <span className="font-medium">
+                        {post.likes?.length || 0} likes
+                      </span>
                     </div>
                   </div>
                 </div>

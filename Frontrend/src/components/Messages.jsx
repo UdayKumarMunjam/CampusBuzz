@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Search, ArrowLeft } from 'lucide-react';
 import { messageService } from '../services/messageService';
+import { socketService } from '../services/socketService';
+import { useAuthStore } from '../stores/authStore';
+import { getLetterAvatar } from '../Utils/avatarUtils';
 
 const Messages = ({ user }) => {
   const navigate = useNavigate();
+  const { fetchUnreadMessageCount } = useAuthStore();
   const [conversations, setConversations] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -33,8 +37,48 @@ const Messages = ({ user }) => {
       }
     };
 
-    fetchConversations();
-  }, []);
+    const fetchConversationsWrapper = () => fetchConversations();
+
+    fetchConversationsWrapper();
+
+    // Connect to socket for real-time updates
+    socketService.connect(user._id);
+
+    // Listen for new messages to update conversation list
+    socketService.onReceiveMessage((message) => {
+      // Update conversation list when receiving new messages
+      setConversations(prev => {
+        const updatedConversations = [...prev];
+        const conversationIndex = updatedConversations.findIndex(conv =>
+          conv.participant._id === message.sender._id || conv.participant._id === message.receiver._id
+        );
+
+        if (conversationIndex !== -1) {
+          // Update existing conversation
+          updatedConversations[conversationIndex].lastMessage = message.content;
+          updatedConversations[conversationIndex].timestamp = message.createdAt;
+          updatedConversations[conversationIndex].unreadCount += 1;
+        } else {
+          // This shouldn't happen as conversations are created when sending first message
+          // But just in case, we could add logic here
+        }
+
+        // Sort by timestamp
+        return updatedConversations.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      });
+    });
+
+    socketService.onMessageDeleted((messageId) => {
+      // Refresh conversations when a message is deleted
+      fetchConversationsWrapper();
+      fetchUnreadMessageCount(); // Refresh unread count
+    });
+
+    // Cleanup
+    return () => {
+      socketService.removeAllListeners();
+    };
+  }, [user._id]);
 
   const filteredConversations = conversations.filter(convo =>
     convo.participant.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -99,12 +143,7 @@ const Messages = ({ user }) => {
     navigate(`/messages/${conversationId}`);
   };
 
-  const defaultAvatar = "data:image/svg+xml;base64," + btoa(`
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="8" r="4" fill="#6B7280"/>
-      <path d="M12 14c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z" fill="#6B7280"/>
-    </svg>
-  `);
+// Removed defaultAvatar as we now use getLetterAvatar utility
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -163,17 +202,17 @@ const Messages = ({ user }) => {
                   >
                     <div className="flex items-center space-x-3">
                       <img
-                        src={user.avatar || defaultAvatar}
+                        src={user.avatar || getLetterAvatar(user.name)}
                         alt={user.name}
                         className="w-10 h-10 rounded-full object-cover"
+                        onError={(e) => {
+                          e.target.src = getLetterAvatar(user.name);
+                        }}
                       />
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-semibold text-gray-900 truncate">
                           {user.name}
                         </h3>
-                        <p className="text-xs text-gray-500 truncate">
-                          @{user.username} • {user.role ? user.role.replace('_', ' ') : 'User'}
-                        </p>
                       </div>
                       <MessageSquare className="w-4 h-4 text-blue-600" />
                     </div>
@@ -212,9 +251,12 @@ const Messages = ({ user }) => {
               >
                 <div className="flex items-center space-x-4">
                   <img
-                    src={conversation.participant.avatar || defaultAvatar}
+                    src={conversation.participant.avatar || getLetterAvatar(conversation.participant.name)}
                     alt={conversation.participant.name}
                     className="w-12 h-12 rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.src = getLetterAvatar(conversation.participant.name);
+                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
@@ -228,10 +270,7 @@ const Messages = ({ user }) => {
                     <p className="text-gray-600 truncate mt-1">
                       {conversation.lastMessage}
                     </p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-gray-500 capitalize">
-                        {conversation.participant.role ? conversation.participant.role.replace('_', ' ') : 'User'}
-                      </span>
+                    <div className="flex items-center justify-end mt-2">
                       {conversation.unreadCount > 0 && (
                         <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                           {conversation.unreadCount}

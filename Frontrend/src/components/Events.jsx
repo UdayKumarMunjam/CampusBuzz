@@ -117,8 +117,7 @@ export default function Events({ user }) {
         <div className="relative z-10 flex justify-between items-center">
           <div>
             <h1 className="text-4xl lg:text-5xl font-bold mb-2 flex items-center space-x-3">
-              <span className="text-6xl">🎉</span>
-              <span>CampusBuzz Events</span>
+              <span>Campus Events</span>
             </h1>
             <p className="text-lg opacity-90">Discover exciting CampusBuzz events, workshops, and activities</p>
           </div>

@@ -13,13 +13,9 @@ import {
   Home
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
+import { getLetterAvatar } from '../Utils/avatarUtils';
 
-const defaultAvatar = "data:image/svg+xml;base64," + btoa(`
-<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="8" r="4" fill="#6B7280"/>
-  <path d="M12 14c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z" fill="#6B7280"/>
-</svg>
-`);
+// Removed defaultAvatar as we now use getLetterAvatar utility
 
 export default function Sidebar({ user, onLogout, isOpen, onClose, onProfileClick }) {
   const location = useLocation();
@@ -87,9 +83,12 @@ export default function Sidebar({ user, onLogout, isOpen, onClose, onProfileClic
           className="flex items-center space-x-3 hover:bg-gray-50 rounded-lg p-2 w-full transition-colors"
         >
           <img
-            src={user.avatar || defaultAvatar}
+            src={user.avatar || getLetterAvatar(user.name)}
             alt={user.name}
             className="w-10 h-10 rounded-full object-cover border-2 border-gray-300"
+            onError={(e) => {
+              e.target.src = getLetterAvatar(user.name);
+            }}
           />
           <div>
             <p className="font-medium text-gray-800 text-sm">{user.name}</p>

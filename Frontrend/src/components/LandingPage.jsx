@@ -140,32 +140,35 @@ const features = [
 
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header onGetStarted={() => navigate('/login')} />
+    <div className="min-h-screen bg-purple-50">
       {/* Page 1 – Hero Slider */}
       <section className="relative w-full h-screen overflow-hidden">
+        <Header onGetStarted={() => navigate('/login')} />
         {heroSlides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
+            className={`absolute inset-0 ${
               index === current ? "opacity-100" : "opacity-0"
             }`}
+            style={{
+              backgroundImage: `url(${slide.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: 'fixed',
+            }}
           >
-            <img
-              src={slide.image}
-              alt={`slide-${index}`}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
-              <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">
+            {/* Blue overlay */}
+            <div className="absolute inset-0 bg-blue-900/30"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 pt-16">
+              <h1 className="text-5xl font-bold mb-4 drop-shadow-lg hover:scale-105 transition-transform duration-300">
                 {slide.title}
               </h1>
-              <p className="text-lg md:text-xl max-w-2xl mb-6 drop-shadow-lg">
+              <p className="text-lg md:text-xl max-w-2xl mb-6 drop-shadow-lg hover:text-blue-100 transition-colors duration-300">
                 {slide.description}
               </p>
               <button
                 onClick={() => navigate('/login')}
-                className="bg-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition inline-flex items-center space-x-2 drop-shadow-lg"
+                className="bg-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300 inline-flex items-center space-x-2 drop-shadow-lg"
               >
                 <span>Join CampusBuzz</span>
                 <ArrowRight className="w-5 h-5" />
@@ -203,12 +206,12 @@ const features = [
       </section>
 
       {/* Page 2 – Features */}
-      <section ref={featuresRef} className="py-20 bg-gray-50" id="features">
+      <section ref={featuresRef} className="py-20 bg-gradient bg-blue-900" id="features">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Explore CampusBuzz Features
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto mb-12">
+          <p className="text-blue-700 max-w-2xl mx-auto mb-12">
             Discover tools designed to make your student life easier, fun, and
             more connected.
           </p>
@@ -249,7 +252,7 @@ const features = [
                 <div
                   key={index}
                   data-index={index}
-                  className={`feature-card bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-500 transform cursor-pointer animate-float ${scrollClass}`}
+                  className={`feature-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform cursor-pointer animate-float hover:scale-105 ${scrollClass}`}
                   style={{
                     transitionDelay: isVisible ? `${index * 0.1}s` : "0s",
                   }}

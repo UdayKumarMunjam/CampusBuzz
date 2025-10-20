@@ -79,32 +79,45 @@ export const getAllUsers = async (req, res) => {
 
 // User login
 export const Login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: "All fields are required", success: false });
-    }
+   try {
+     console.log("Login attempt - Request body:", { email: req.body.email, password: req.body.password ? "[REDACTED]" : undefined });
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ message: "Invalid credentials", success: false });
+     const { email, password } = req.body;
+     if (!email || !password) {
+       console.log("Login failed - Missing fields:", { email: !!email, password: !!password });
+       return res.status(400).json({ message: "All fields are required", success: false });
+     }
 
-    const isMatch = await bcryptjs.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials", success: false });
+     console.log("Login - Looking up user by email:", email);
+     const user = await User.findOne({ email });
+     if (!user) {
+       console.log("Login failed - User not found for email:", email);
+       return res.status(401).json({ message: "Invalid credentials", success: false });
+     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET, { expiresIn: "1d" });
+     console.log("Login - User found, comparing passwords");
+     const isMatch = await bcryptjs.compare(password, user.password);
+     if (!isMatch) {
+       console.log("Login failed - Password mismatch for user:", user._id);
+       return res.status(401).json({ message: "Invalid credentials", success: false });
+     }
 
-    return res.status(200).cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000,
-    }).json({ message: `Welcome back ${user.name}`, user, success: true });
+     console.log("Login - Password match, generating token for user:", user._id);
+     const token = jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET, { expiresIn: "1d" });
 
-  } catch (error) {
-    console.error("Login error:", error);
-    return res.status(500).json({ message: "Server error", success: false });
-  }
-};
+     console.log("Login successful - Token generated, setting cookie for user:", user._id);
+     return res.status(200).cookie("token", token, {
+       httpOnly: true,
+       secure: false,
+       sameSite: "lax",
+       maxAge: 24 * 60 * 60 * 1000,
+     }).json({ message: `Welcome back ${user.name}`, user, success: true });
+
+   } catch (error) {
+     console.error("Login error:", error);
+     return res.status(500).json({ message: "Server error", success: false });
+   }
+ };
 
 //  User logout
 export const Logout = (req, res) => {

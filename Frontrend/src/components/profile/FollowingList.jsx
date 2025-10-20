@@ -3,15 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader, User } from "lucide-react";
 import BackButton from "../common/BackButton";
 import { useAuthStore } from "../../stores/authStore";
+import { getLetterAvatar } from "../../Utils/avatarUtils";
 
-const defaultAvatar =
-  "data:image/svg+xml;base64," +
-  btoa(`
-<svg width="128" height="128" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="8" r="4" fill="#6B7280"/>
-  <path d="M12 14c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z" fill="#6B7280"/>
-</svg>
-`);
+// Removed defaultAvatar as we now use getLetterAvatar utility
 
 export default function FollowingList() {
   const { userId } = useParams();
@@ -95,9 +89,12 @@ export default function FollowingList() {
                   onClick={() => navigate(`/profile/${followedUser._id}`)}
                 >
                   <img
-                    src={followedUser.avatar || defaultAvatar}
+                    src={followedUser.avatar || getLetterAvatar(followedUser.name)}
                     alt={followedUser.name}
                     className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
+                    onError={(e) => {
+                      e.target.src = getLetterAvatar(followedUser.name);
+                    }}
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800">{followedUser.name}</h3>

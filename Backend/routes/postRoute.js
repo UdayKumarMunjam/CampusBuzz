@@ -1,5 +1,5 @@
 import express from "express";
-import { createPost, getPosts, likePost, deletePost, getPostsByUser, addComment, getComments } from "../controller/postController.js";
+import { createPost, getPosts, likePost, deletePost, getPostsByUser, addComment, getComments, deleteComment } from "../controller/postController.js";
 import isAuthenticated from "../config/auth.js";
 import upload from "../config/multer.js";
 
@@ -21,6 +21,9 @@ router.route("/like/:postId").put(isAuthenticated, likePost);
 router.route("/comment/:postId")
   .post(isAuthenticated, addComment)
   .get(isAuthenticated, getComments);
+
+router.route("/comment/:postId/:commentId")
+  .delete(isAuthenticated, deleteComment);
 
 router.route("/:postId").delete(isAuthenticated, deletePost);
 
