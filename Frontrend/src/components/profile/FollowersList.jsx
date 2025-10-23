@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader, User } from "lucide-react";
+import { ArrowLeft, Loader, User, UserCheck, Clock, UserPlus } from "lucide-react";
 import BackButton from "../common/BackButton";
 import { useAuthStore } from "../../stores/authStore";
 import { getLetterAvatar } from "../../Utils/avatarUtils";
+import { messageService } from "../../services/messageService";
 
 // Removed defaultAvatar as we now use getLetterAvatar utility
 
@@ -15,6 +16,7 @@ export default function FollowersList() {
   const [followers, setFollowers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [connectionStatuses, setConnectionStatuses] = useState({});
 
   useEffect(() => {
     const fetchFollowers = async () => {
@@ -29,7 +31,21 @@ export default function FollowersList() {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData.user);
-          setFollowers(userData.user.followers || []);
+          const followersList = userData.user.followers || [];
+          setFollowers(followersList);
+
+          // Fetch connection statuses for all followers
+          if (followersList.length > 0) {
+            const userIds = followersList.map(follower => follower._id);
+            try {
+              const statusResponse = await messageService.getConnectionStatuses(userIds);
+              if (statusResponse.success) {
+                setConnectionStatuses(statusResponse.statuses);
+              }
+            } catch (statusError) {
+              console.error("Error fetching connection statuses:", statusError);
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching followers:", error);
@@ -82,27 +98,50 @@ export default function FollowersList() {
             </div>
           ) : (
             <div className="space-y-4">
-              {followers.map((follower) => (
-                <div
-                  key={follower._id}
-                  className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/profile/${follower._id}`)}
-                >
-                  <img
-                    src={follower.avatar || getLetterAvatar(follower.name)}
-                    alt={follower.name}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
-                    onError={(e) => {
-                      e.target.src = getLetterAvatar(follower.name);
-                    }}
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800">{follower.name}</h3>
-                    <p className="text-sm text-gray-600 capitalize">{follower.role.replace('_', ' ')}</p>
+              {followers.map((follower) => {
+                const connectionStatus = connectionStatuses[follower._id] || 'not_connected';
+                return (
+                  <div
+                    key={follower._id}
+                    className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/profile/${follower._id}`)}
+                  >
+                    <img
+                      src={follower.avatar || getLetterAvatar(follower.name)}
+                      alt={follower.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
+                      onError={(e) => {
+                        e.target.src = getLetterAvatar(follower.name);
+                      }}
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-800">{follower.name}</h3>
+                      <p className="text-sm text-gray-600 capitalize">{follower.role.replace('_', ' ')}</p>
+                      <div className="flex items-center space-x-1 mt-1">
+                        {connectionStatus === 'connected' && (
+                          <>
+                            <UserCheck size={12} className="text-green-500" />
+                            <span className="text-xs text-green-600 font-medium">Connected</span>
+                          </>
+                        )}
+                        {connectionStatus === 'pending' && (
+                          <>
+                            <Clock size={12} className="text-yellow-500" />
+                            <span className="text-xs text-yellow-600 font-medium">Pending</span>
+                          </>
+                        )}
+                        {connectionStatus === 'request_received' && (
+                          <>
+                            <UserPlus size={12} className="text-blue-500" />
+                            <span className="text-xs text-blue-600 font-medium">Request Received</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <ArrowLeft className="w-5 h-5 text-gray-400 rotate-180" />
                   </div>
-                  <ArrowLeft className="w-5 h-5 text-gray-400 rotate-180" />
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

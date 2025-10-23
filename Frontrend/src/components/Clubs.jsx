@@ -12,7 +12,6 @@ export default function Clubs() {
       description: 'Learn programming, build projects, and collaborate with fellow developers',
       logo: Code,
       memberCount: 234,
-      activeProjects: 12,
       upcomingEvents: 3,
       gradient: 'from-blue-500 to-cyan-500',
       image: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=800'
@@ -23,7 +22,6 @@ export default function Clubs() {
       description: 'Entrepreneurship cell fostering innovation and startup culture on campus',
       logo: Lightbulb,
       memberCount: 189,
-      activeProjects: 8,
       upcomingEvents: 2,
       gradient: 'from-purple-500 to-pink-500',
       image: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800'
@@ -67,20 +65,13 @@ export default function Clubs() {
               <div className="p-6 lg:p-8">
                 <p className="text-gray-700 mb-6 text-base leading-relaxed">{club.description}</p>
 
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl text-center">
                     <div className="flex items-center justify-center mb-2">
                       <Users className="w-6 h-6 text-blue-600" />
                     </div>
                     <p className="text-2xl font-bold text-gray-800">{club.memberCount}</p>
                     <p className="text-sm text-gray-600 font-medium">Members</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl text-center">
-                    <div className="flex items-center justify-center mb-2">
-                      <Code className="w-6 h-6 text-green-600" />
-                    </div>
-                    <p className="text-2xl font-bold text-gray-800">{club.activeProjects}</p>
-                    <p className="text-sm text-gray-600 font-medium">Projects</p>
                   </div>
                   <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl text-center">
                     <div className="flex items-center justify-center mb-2">

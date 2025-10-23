@@ -139,4 +139,28 @@ export const useAuthStore = create((set, get) => ({
     set({ unreadMessageCount: count });
   },
 
+  forgotPassword: async (email) => {
+    try {
+      const res = await axios.post("http://localhost:8080/api/user/forgot-password", { email });
+      toast.success(res.data.message || "Password reset email sent successfully");
+      return { success: true };
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to send reset email");
+      console.log(error);
+      return { success: false };
+    }
+  },
+
+  resetPassword: async (token, newPassword) => {
+    try {
+      const res = await axios.post("http://localhost:8080/api/user/reset-password", { token, newPassword });
+      toast.success(res.data.message || "Password reset successfully");
+      return { success: true };
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to reset password");
+      console.log(error);
+      return { success: false };
+    }
+  },
+
 }));

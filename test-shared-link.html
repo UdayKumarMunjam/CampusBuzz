@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CampusBuzz Shared Link</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .link-container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .link {
+            color: #87CEEB;
+            text-decoration: none;
+            font-size: 18px;
+            word-break: break-all;
+            display: block;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #87CEEB;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.6);
+        }
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.6);
+        }
+        .status.warning {
+            background: rgba(255, 193, 7, 0.3);
+            border: 1px solid rgba(255, 193, 7, 0.6);
+        }
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 CampusBuzz Shared Link Test</h1>
+        
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li>Make sure both CampusBuzz servers are running:
+                    <ul>
+                        <li>Frontend: <code>npm run dev</code> (should be on port 5173)</li>
+                        <li>Backend: <code>npm start</code> (should be on port 8080)</li>
+                    </ul>
+                </li>
+                <li>Click the link below to test the shared post functionality</li>
+                <li>The link should redirect you to the specific post in CampusBuzz</li>
+            </ol>
+        </div>
+
+        <div class="link-container">
+            <h3>🔗 Test Shared Link:</h3>
+            <a href="http://localhost:5173/post/68f503d70184f9f434a1ee55" class="link" target="_blank">
+                http://localhost:5173/post/68f503d70184f9f434a1ee55
+            </a>
+        </div>
+
+        <div class="status warning">
+            ⚠️ <strong>Note:</strong> If the link doesn't work, it could be because:
+            <ul>
+                <li>The servers are not running</li>
+                <li>The post ID doesn't exist in your database</li>
+                <li>There's a network connectivity issue</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="testConnection()">🔍 Test Backend Connection</button>
+            <button onclick="openCampusBuzz()">🏠 Open CampusBuzz Home</button>
+            <button onclick="copyLink()">📋 Copy Test Link</button>
+        </div>
+
+        <div id="connectionStatus"></div>
+    </div>
+
+    <script>
+        async function testConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.innerHTML = '<div class="status warning">🔄 Testing connection...</div>';
+            
+            try {
+                // Test backend connection
+                const response = await fetch('http://localhost:8080/api/posts/68f503d70184f9f434a1ee55');
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    statusDiv.innerHTML = '<div class="status success">✅ Backend is running and post exists!</div>';
+                } else if (response.status === 404) {
+                    statusDiv.innerHTML = '<div class="status error">❌ Post not found (404) - The post ID might not exist in your database</div>';
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">❌ Backend error: ' + (data.message || 'Unknown error') + '</div>';
+                }
+            } catch (error) {
+                if (error.message.includes('Failed to fetch')) {
+                    statusDiv.innerHTML = '<div class="status error">❌ Backend server is not running on port 8080</div>';
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">❌ Connection error: ' + error.message + '</div>';
+                }
+            }
+        }
+
+        function openCampusBuzz() {
+            window.open('http://localhost:5173', '_blank');
+        }
+
+        function copyLink() {
+            const link = 'http://localhost:5173/post/68f503d70184f9f434a1ee55';
+            navigator.clipboard.writeText(link).then(() => {
+                alert('✅ Link copied to clipboard!');
+            }).catch(() => {
+                alert('❌ Failed to copy link');
+            });
+        }
+
+        // Auto-test connection on page load
+        window.onload = function() {
+            setTimeout(testConnection, 1000);
+        };
+    </script>
+</body>
+</html>

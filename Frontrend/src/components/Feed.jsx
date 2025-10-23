@@ -6,6 +6,7 @@ import { useAuthStore } from "../stores/authStore";
 import SkeletonPost from "./common/SkeletonPost"; // import skeleton
 import MediaCarousel from "./MediaCarousel";
 import PostCard from "./PostCard";
+import ProfileCard from "./ProfileCard";
 import { timeAgo } from "../Utils/timeAgo";
 import { getLetterAvatar } from "../Utils/avatarUtils";
 
@@ -167,60 +168,72 @@ export default function Feed({ user: propUser }) {
   };
 
   return (
-    <div className="p-2 lg:p-2 max-w-4xl mx-auto flex flex-col h-[calc(100vh-1rem)]">
-      {/* Header Section */}
-      <div className="flex-shrink-0 mb-2">
-        <div className="flex items-center space-x-4 mb-2">
-          <div className="relative flex-1">
-            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
-            <input
-              type="text"
-              placeholder="Search posts, hashtags (#campuslife), or users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+    <div className="p-2 lg:p-4 max-w-7xl mx-auto h-[calc(100vh-1rem)]">
+      <div className="flex gap-6 h-full">
+        {/* Main Content - Posts */}
+        <div className="flex-1 max-w-3xl flex flex-col mx-auto lg:mx-0">
+          {/* Header Section */}
+          <div className="flex-shrink-0 mb-4">
+            <div className="flex items-center space-x-4 mb-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-gray-500 dark:text-gray-400 absolute left-3 top-3.5" />
+                <input
+                  type="text"
+                  placeholder="Search posts, hashtags, or users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm"
+                />
+              </div>
+
+              <button
+                onClick={() => setShowNewPost(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all flex items-center justify-center space-x-2 whitespace-nowrap"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Add Post</span>
+              </button>
+            </div>
           </div>
 
-          <button
-            onClick={() => setShowNewPost(true)}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all flex items-center justify-center space-x-2 whitespace-nowrap"
+          {/* Scrollable Posts */}
+          <div
+            className="flex-1 min-h-0 space-y-6 overflow-y-scroll"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
           >
-            <Plus className="w-5 h-5" />
-            <span>Add Post</span>
-          </button>
+            <style>{`div::-webkit-scrollbar { display: none; }`}</style>
+
+            {isLoading &&
+              Array.from({ length: 3 }).map((_, idx) => <SkeletonPost key={idx} />)}
+
+            {!isLoading &&
+              filteredPosts.map((post) => (
+                <PostCard key={post._id} post={post} />
+              ))}
+          </div>
         </div>
-      </div>
 
-      {/* Scrollable Posts */}
-      <div
-        className="flex-1 min-h-0 space-y-6 overflow-y-scroll"
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        <style>{`div::-webkit-scrollbar { display: none; }`}</style>
-
-        {isLoading &&
-          Array.from({ length: 3 }).map((_, idx) => <SkeletonPost key={idx} />)}
-
-        {!isLoading &&
-          filteredPosts.map((post) => (
-            <PostCard key={post._id} post={post} />
-          ))}
+        {/* Right Sidebar - Profile Card */}
+        <div className="hidden lg:block w-80 flex-shrink-0">
+          <div className="sticky top-4">
+            <ProfileCard user={user} />
+          </div>
+        </div>
       </div>
 
       {/* New Post Modal */}
       {showNewPost && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={!uploading ? () => setShowNewPost(false) : undefined}>
-          <div className="bg-white rounded-lg p-4 lg:p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 lg:p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Create New Post</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Create New Post</h3>
               {!uploading && (
                 <button
                   onClick={() => setShowNewPost(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -231,7 +244,7 @@ export default function Feed({ user: propUser }) {
               value={newPost.content}
               onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
               disabled={uploading}
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg resize-none h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 disabled:cursor-not-allowed"
             />
 
             <div className="flex items-center mt-3 space-x-4">
@@ -314,7 +327,7 @@ export default function Feed({ user: propUser }) {
               <button
                 onClick={() => setShowNewPost(false)}
                 disabled={uploading}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors disabled:opacity-50"
+                className="flex-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -386,9 +399,9 @@ export default function Feed({ user: propUser }) {
       {/* Comment Modal */}
       {commentModal.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Add Comment</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Comment</h3>
               <button
                 onClick={() => setCommentModal({ show: false, post: null })}
                 className="text-gray-400 hover:text-gray-600"
@@ -423,9 +436,9 @@ export default function Feed({ user: propUser }) {
       {/* Share Modal */}
       {shareModal.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 w-full max-w-xs" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 w-full max-w-xs" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-sm font-semibold">Share Post</h3>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Share Post</h3>
               <button
                 onClick={() => setShareModal({ show: false, post: null })}
                 className="text-gray-400 hover:text-gray-600"

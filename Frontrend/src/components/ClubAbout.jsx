@@ -79,66 +79,66 @@ export default function ClubAbout() {
 
         {/* Mission & Vision */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <div className="flex items-center mb-4">
               <Target className="w-6 h-6 text-blue-500 mr-3" />
-              <h2 className="text-xl font-semibold text-gray-800">Our Mission</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Our Mission</h2>
             </div>
-            <p className="text-gray-600 leading-relaxed">{club.mission}</p>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{club.mission}</p>
           </div>
           
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <div className="flex items-center mb-4">
               <Award className="w-6 h-6 text-purple-500 mr-3" />
-              <h2 className="text-xl font-semibold text-gray-800">Our Vision</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Our Vision</h2>
             </div>
-            <p className="text-gray-600 leading-relaxed">{club.vision}</p>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{club.vision}</p>
           </div>
         </div>
 
         {/* Core Values */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-12">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Core Values</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-12">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">Core Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {club.values.map((value, index) => (
-              <div key={index} className="flex items-center p-3 bg-blue-50 rounded-lg">
+              <div key={index} className="flex items-center p-3 bg-blue-50 dark:bg-gray-700 rounded-lg">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                <span className="text-gray-700 font-medium">{value}</span>
+                <span className="text-gray-700 dark:text-gray-300 font-medium">{value}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* History */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-12">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-12">
           <div className="flex items-center mb-4">
             <Calendar className="w-6 h-6 text-green-500 mr-3" />
-            <h2 className="text-xl font-semibold text-gray-800">Our History</h2>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Our History</h2>
           </div>
-          <p className="text-gray-600 leading-relaxed">{club.history}</p>
+          <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{club.history}</p>
         </div>
 
         {/* Achievements & Goals */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Key Achievements</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">Key Achievements</h2>
             <div className="space-y-3">
               {club.achievements.map((achievement, index) => (
                 <div key={index} className="flex items-start">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0" />
-                  <span className="text-gray-700">{achievement}</span>
+                  <span className="text-gray-700 dark:text-gray-300">{achievement}</span>
                 </div>
               ))}
             </div>
           </div>
           
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Upcoming Goals</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">Upcoming Goals</h2>
             <div className="space-y-3">
               {club.upcomingGoals.map((goal, index) => (
                 <div key={index} className="flex items-start">
                   <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0" />
-                  <span className="text-gray-700">{goal}</span>
+                  <span className="text-gray-700 dark:text-gray-300">{goal}</span>
                 </div>
               ))}
             </div>

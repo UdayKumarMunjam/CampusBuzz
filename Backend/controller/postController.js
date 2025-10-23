@@ -375,3 +375,32 @@ export const getPostsByUser = async (req, res) => {
     });
   }
 };
+
+// ✅ Get individual post by ID (for shared links)
+export const getPostById = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId)
+      .populate('userId', 'name avatar role')
+      .populate('comments.userId', 'name avatar');
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      post,
+      success: true,
+    });
+  } catch (error) {
+    console.error("Get Post By ID Error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+};

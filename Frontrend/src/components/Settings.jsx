@@ -125,15 +125,15 @@ export default function Settings() {
         </div>
 
         {/* Settings Content */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
           {/* Tab Navigation */}
-          <div className="flex border-b border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
+          <div className="flex border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-700 dark:to-gray-600">
             <button
               onClick={() => setActiveTab('profile')}
               className={`flex-1 py-4 px-6 text-center font-semibold transition-all duration-300 ${
                 activeTab === 'profile'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-white dark:bg-gray-800'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-700/50'
               }`}
             >
               <User className="w-5 h-5 inline mr-2" />
@@ -143,8 +143,8 @@ export default function Settings() {
               onClick={() => setActiveTab('password')}
               className={`flex-1 py-4 px-6 text-center font-semibold transition-all duration-300 ${
                 activeTab === 'password'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-white dark:bg-gray-800'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-700/50'
               }`}
             >
               <Lock className="w-5 h-5 inline mr-2" />

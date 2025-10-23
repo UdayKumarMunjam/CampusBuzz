@@ -45,6 +45,7 @@ app.use('/api/activities', activityRoute); // ✅ add activities route
 app.use('/api/lostfound', lostFoundRoute);
 app.use("/api/notices", noticeRoute);
 app.use("/api/placements", placementRoute);
+app.use("/api/messages", messageRoute);
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   // console.log('Socket connected:', socket.id);
@@ -123,7 +124,6 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use("/api/messages", messageRoute);
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

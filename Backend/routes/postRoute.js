@@ -1,5 +1,5 @@
 import express from "express";
-import { createPost, getPosts, likePost, deletePost, getPostsByUser, addComment, getComments, deleteComment } from "../controller/postController.js";
+import { createPost, getPosts, likePost, deletePost, getPostsByUser, addComment, getComments, deleteComment, getPostById } from "../controller/postController.js";
 import isAuthenticated from "../config/auth.js";
 import upload from "../config/multer.js";
 
@@ -25,6 +25,8 @@ router.route("/comment/:postId")
 router.route("/comment/:postId/:commentId")
   .delete(isAuthenticated, deleteComment);
 
-router.route("/:postId").delete(isAuthenticated, deletePost);
+router.route("/:postId")
+  .get(getPostById) // Public route for shared links
+  .delete(isAuthenticated, deletePost);
 
 export default router;
