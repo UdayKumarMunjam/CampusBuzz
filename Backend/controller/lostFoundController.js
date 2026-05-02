@@ -39,7 +39,7 @@ export const createLostFound = async (req, res) => {
           <p>Hi,</p>
           <p>Thank you for reporting your <b>${type}</b> item: ${title}.</p>
           <p>You will be contacted if a match is found.</p>
-          <p>If resolved, click here: <a href="http://${API}/api/lostfound/resolve/${lostFound._id}">Mark as Resolved</a></p>
+          <p>If resolved, click here: <a href="${import.meta.env.VITE_API_URL}/api/lostfound/resolve/${lostFound._id}">Mark as Resolved</a></p>
         `
       });
       console.log(`✅ Email sent successfully to ${reporterEmail}`);

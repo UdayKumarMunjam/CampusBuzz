@@ -91,7 +91,7 @@ export default function PostCard({ post }) {
 
     try {
       const response = await axios.delete(
-        `http://${API}/api/posts/comment/${post._id}/${commentId}`,
+        `${import.meta.env.VITE_API_URL}/api/posts/comment/${post._id}/${commentId}`,
         { withCredentials: true }
       );
 
@@ -121,7 +121,7 @@ export default function PostCard({ post }) {
 
     try {
       const response = await axios.get(
-        `http://${API}/api/user/connect/${post.userId._id}/status`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${post.userId._id}/status`,
         { withCredentials: true }
       );
       if (response.data.success) {
@@ -140,7 +140,7 @@ export default function PostCard({ post }) {
     setLoadingConnection(true);
     try {
       const response = await axios.post(
-        `http://${API}/api/user/connect/${post.userId._id}`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${post.userId._id}`,
         {},
         { withCredentials: true }
       );
@@ -163,7 +163,7 @@ export default function PostCard({ post }) {
     setLoadingConnection(true);
     try {
       const response = await axios.post(
-        `http://${API}/api/user/connect/${post.userId._id}/accept`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${post.userId._id}/accept`,
         {},
         { withCredentials: true }
       );
@@ -188,7 +188,7 @@ export default function PostCard({ post }) {
     setLoadingConnection(true);
     try {
       const response = await axios.post(
-        `http://${API}/api/user/connect/${post.userId._id}/decline`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${post.userId._id}/decline`,
         {},
         { withCredentials: true }
       );
@@ -212,7 +212,7 @@ export default function PostCard({ post }) {
     try {
       // Use the decline endpoint to cancel the pending request
       const response = await axios.post(
-        `http://${API}/api/user/connect/${post.userId._id}/cancel`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${post.userId._id}/cancel`,
         {},
         { withCredentials: true }
       );
@@ -233,7 +233,7 @@ export default function PostCard({ post }) {
     setLoadingUsers(true);
     try {
       // Get connected users only
-      const res = await axios.get(`http://${API}/api/user/${user._id}/connections`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/${user._id}/connections`, {
         withCredentials: true,
       });
       if (res.data.success) {

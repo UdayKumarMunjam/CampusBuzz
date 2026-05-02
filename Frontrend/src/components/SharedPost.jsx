@@ -24,7 +24,7 @@ export default function SharedPost() {
       setError(null);
       
       console.log('Fetching post with ID:', postId);
-      const response = await axios.get(`http://${API}/api/posts/${postId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/posts/${postId}`);
       console.log('Post response:', response.data);
       
       if (response.data.success) {

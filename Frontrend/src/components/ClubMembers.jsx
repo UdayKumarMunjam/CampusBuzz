@@ -20,7 +20,7 @@ export default function ClubMembers() {
     const fetchMembers = async () => {
       try {
         console.log(`Fetching members for club: ${clubId}`);
-        const res = await axios.get(`http://${API}/api/user/club/${clubId}/members`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/club/${clubId}/members`);
         console.log('API Response:', res.data);
 
         const mappedMembers = res.data.members.map(member => ({

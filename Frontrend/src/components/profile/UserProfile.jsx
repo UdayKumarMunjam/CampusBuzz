@@ -62,7 +62,7 @@ export default function UserProfile() {
         if (userId !== currentUser._id) {
           try {
             const response = await axios.get(
-              `http://${API}/api/user/connect/${userId}/status`,
+              `${import.meta.env.VITE_API_URL}/api/user/connect/${userId}/status`,
               { withCredentials: true }
             );
             if (response.data.success) {
@@ -98,7 +98,7 @@ export default function UserProfile() {
     setLoadingConnection(true);
     try {
       const response = await axios.post(
-        `http://${API}/api/user/connect/${userId}`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${userId}`,
         {},
         { withCredentials: true }
       );
@@ -121,7 +121,7 @@ export default function UserProfile() {
     setLoadingConnection(true);
     try {
       const response = await axios.post(
-        `http://${API}/api/user/connect/${userId}/accept`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${userId}/accept`,
         {},
         { withCredentials: true }
       );
@@ -146,7 +146,7 @@ export default function UserProfile() {
     setLoadingConnection(true);
     try {
       const response = await axios.post(
-        `http://${API}/api/user/connect/${userId}/decline`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${userId}/decline`,
         {},
         { withCredentials: true }
       );

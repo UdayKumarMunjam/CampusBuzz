@@ -57,7 +57,7 @@ const Conversation = ({ user }) => {
           // If no messages yet, we need to fetch user details for the conversationId
           // This happens when starting a new conversation
           try {
-            const userResponse = await fetch(`http://${API}/api/user/profile/${conversationId}`, {
+            const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/user/profile/${conversationId}`, {
               credentials: 'include'
             });
             if (userResponse.ok) {

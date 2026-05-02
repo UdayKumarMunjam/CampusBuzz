@@ -24,7 +24,7 @@ export default function Connections() {
   const fetchConnections = async () => {
     try {
       const response = await axios.get(
-        `http://${API}/api/user/${user._id}/connections`,
+        `${import.meta.env.VITE_API_URL}/api/user/${user._id}/connections`,
         { withCredentials: true }
       );
       if (response.data.success) {
@@ -61,7 +61,7 @@ export default function Connections() {
   const fetchRequests = async () => {
     try {
       const response = await axios.get(
-        'http://${API}/api/user/connections/requests',
+        '${import.meta.env.VITE_API_URL}/api/user/connections/requests',
         { withCredentials: true }
       );
       if (response.data.success) {
@@ -78,7 +78,7 @@ export default function Connections() {
   const handleAcceptRequest = async (userId) => {
     try {
       const response = await axios.post(
-        `http://${API}/api/user/connect/${userId}/accept`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${userId}/accept`,
         {},
         { withCredentials: true }
       );
@@ -99,7 +99,7 @@ export default function Connections() {
   const handleDeclineRequest = async (userId) => {
     try {
       const response = await axios.post(
-        `http://${API}/api/user/connect/${userId}/decline`,
+        `${import.meta.env.VITE_API_URL}/api/user/connect/${userId}/decline`,
         {},
         { withCredentials: true }
       );
@@ -131,7 +131,7 @@ export default function Connections() {
     if (window.confirm(`Are you sure you want to disconnect from ${userName || 'this user'}?`)) {
       try {
         const response = await axios.post(
-          `http://${API}/api/user/connect/${userId}/disconnect`,
+          `${import.meta.env.VITE_API_URL}/api/user/connect/${userId}/disconnect`,
           {},
           { withCredentials: true }
         );

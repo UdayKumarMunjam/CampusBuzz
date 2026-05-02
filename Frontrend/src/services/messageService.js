@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://${API}/api';
+const API_BASE_URL = '${import.meta.env.VITE_API_URL}/api';
 
 export const messageService = {
   // Get all conversations for the current user

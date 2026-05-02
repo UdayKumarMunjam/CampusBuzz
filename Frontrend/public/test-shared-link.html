@@ -143,7 +143,7 @@
             
             try {
                 // Test backend connection
-                const response = await fetch('http://${API}/api/posts/68f503d70184f9f434a1ee55');
+                const response = await fetch('${import.meta.env.VITE_API_URL}/api/posts/68f503d70184f9f434a1ee55');
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
