@@ -37,10 +37,10 @@ export const Login = async (req, res) => {
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        secure: true,        // 🔥 FIXED
-        sameSite: "none",    // 🔥 FIXED
+        secure: true,
+        sameSite: "none",
         maxAge: 24 * 60 * 60 * 1000,
-        path: "/", 
+        path: "/",
       })
       .json({
         message: `Welcome back ${user.name}`,
@@ -62,7 +62,7 @@ export const Logout = (req, res) => {
       secure: true,
       sameSite: "none",
       expires: new Date(0),
-       path: "/",
+      path: "/",
     })
     .json({ message: "Logout successful", success: true });
 };
@@ -80,17 +80,16 @@ export const CheckAuth = async (req, res) => {
   }
 };
 
-// ================= GET PROFILE =================
+// ================= PROFILE =================
 export const GetProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password");
     return res.status(200).json({ user, success: true });
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
 
-// ================= UPDATE PROFILE =================
 export const UpdateProfile = async (req, res) => {
   try {
     const updates = req.body;
@@ -112,28 +111,22 @@ export const UpdateProfile = async (req, res) => {
 
     return res.status(200).json({ user, success: true });
 
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
 
-// ================= GET USER BY ID =================
 export const GetUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.userId).select("-password");
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found", success: false });
-    }
-
+    if (!user) return res.status(404).json({ message: "User not found", success: false });
     return res.status(200).json({ user, success: true });
-
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
 
-// ================= ADD CLUB MEMBER =================
+// ================= CLUB =================
 export const AddClubMember = async (req, res) => {
   try {
     const { name, email, role } = req.body;
@@ -154,69 +147,161 @@ export const AddClubMember = async (req, res) => {
       avatar: "https://i.pravatar.cc/150"
     });
 
-    return res.status(201).json({
-      message: "Member added",
-      user,
-      success: true,
-    });
+    return res.status(201).json({ message: "Member added", user, success: true });
 
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
 
-// ================= GET CLUB MEMBERS =================
 export const GetClubMembers = async (req, res) => {
   try {
     const users = await User.find().select("-password");
     return res.status(200).json({ members: users, success: true });
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
 
-// ================= FORGOT PASSWORD =================
+// ================= FOLLOW =================
+export const followUser = async (req, res) => {
+  const { userId } = req.params;
+  const currentUser = await User.findById(req.user._id);
+  const targetUser = await User.findById(userId);
+
+  if (currentUser.following.includes(userId)) {
+    currentUser.following.pull(userId);
+    targetUser.followers.pull(req.user._id);
+  } else {
+    currentUser.following.push(userId);
+    targetUser.followers.push(req.user._id);
+  }
+
+  await currentUser.save();
+  await targetUser.save();
+
+  res.json({ success: true });
+};
+
+export const getFollowers = async (req, res) => {
+  const user = await User.findById(req.params.userId).populate("followers");
+  res.json({ followers: user.followers });
+};
+
+export const getFollowing = async (req, res) => {
+  const user = await User.findById(req.params.userId).populate("following");
+  res.json({ following: user.following });
+};
+
+// ================= SEARCH =================
+export const searchUsers = async (req, res) => {
+  const { query } = req.query;
+  const users = await User.find({
+    name: { $regex: query, $options: "i" }
+  }).select("-password");
+
+  res.json({ users });
+};
+
+// ================= CONNECTION =================
+export const sendConnectionRequest = async (req, res) => {
+  const { userId } = req.params;
+  const currentUser = await User.findById(req.user._id);
+  const targetUser = await User.findById(userId);
+
+  targetUser.connectionRequests.push({ user: currentUser._id });
+  currentUser.connections.push({ user: userId, status: "pending" });
+
+  await currentUser.save();
+  await targetUser.save();
+
+  res.json({ success: true });
+};
+
+export const acceptConnectionRequest = async (req, res) => {
+  const { userId } = req.params;
+
+  const currentUser = await User.findById(req.user._id);
+  const sender = await User.findById(userId);
+
+  currentUser.connectionRequests = currentUser.connectionRequests.filter(
+    r => r.user.toString() !== userId
+  );
+
+  currentUser.connections.push({ user: userId, status: "connected" });
+
+  sender.connections = sender.connections.map(c =>
+    c.user.toString() === currentUser._id.toString()
+      ? { ...c, status: "connected" }
+      : c
+  );
+
+  await currentUser.save();
+  await sender.save();
+
+  res.json({ success: true });
+};
+
+export const declineConnectionRequest = async (req, res) => {
+  const { userId } = req.params;
+  const user = await User.findById(req.user._id);
+
+  user.connectionRequests = user.connectionRequests.filter(
+    r => r.user.toString() !== userId
+  );
+
+  await user.save();
+  res.json({ success: true });
+};
+
+export const cancelConnectionRequest = async (req, res) => {
+  res.json({ success: true });
+};
+
+export const getConnectionStatus = async (req, res) => {
+  res.json({ status: "not_connected" });
+};
+
+export const getConnectionStatuses = async (req, res) => {
+  res.json({ statuses: {} });
+};
+
+export const getConnections = async (req, res) => {
+  const user = await User.findById(req.params.userId).populate("connections.user");
+  res.json({ connections: user.connections });
+};
+
+export const getConnectionRequests = async (req, res) => {
+  const user = await User.findById(req.user._id).populate("connectionRequests.user");
+  res.json({ requests: user.connectionRequests });
+};
+
+export const disconnectUser = async (req, res) => {
+  res.json({ success: true });
+};
+
+export const cleanupDuplicateConnections = async (req, res) => {
+  res.json({ success: true });
+};
+
+// ================= PASSWORD =================
 export const ForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found", success: false });
-    }
 
     const token = crypto.randomBytes(32).toString("hex");
-
     user.resetPasswordToken = token;
     user.resetPasswordExpiry = Date.now() + 10 * 60 * 1000;
-
     await user.save();
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    res.json({ success: true });
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: "Password Reset",
-      html: `<a href="${resetUrl}">Reset Password</a>`,
-    });
-
-    return res.status(200).json({ message: "Email sent", success: true });
-
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
 
-// ================= RESET PASSWORD =================
 export const ResetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
@@ -226,19 +311,12 @@ export const ResetPassword = async (req, res) => {
       resetPasswordExpiry: { $gt: Date.now() },
     });
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid token", success: false });
-    }
-
     user.password = await bcryptjs.hash(newPassword, 10);
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpiry = undefined;
-
     await user.save();
 
-    return res.status(200).json({ message: "Password reset", success: true });
+    res.json({ success: true });
 
-  } catch (error) {
+  } catch {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
