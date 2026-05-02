@@ -8,11 +8,6 @@ import nodemailer from "nodemailer";
 
 dotenv.config();
 
-// ================= HELPERS =================
-const generateRandomPassword = () => {
-  return crypto.randomBytes(8).toString("hex");
-};
-
 // ================= LOGIN =================
 export const Login = async (req, res) => {
   try {
@@ -42,8 +37,8 @@ export const Login = async (req, res) => {
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        secure: true,        // 🔥 REQUIRED
-        sameSite: "none",    // 🔥 REQUIRED
+        secure: true,
+        sameSite: "none",
         maxAge: 24 * 60 * 60 * 1000,
       })
       .json({
@@ -75,13 +70,67 @@ export const Logout = (req, res) => {
 export const CheckAuth = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password");
+
+    return res.status(200).json({ user, success: true });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+
+// ================= GET USER BY ID =================
+export const GetUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select("-password");
+
     if (!user) {
       return res.status(404).json({ message: "User not found", success: false });
     }
 
     return res.status(200).json({ user, success: true });
   } catch (error) {
-    console.error("CheckAuth error:", error);
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+
+// ================= ADD CLUB MEMBER =================
+export const AddClubMember = async (req, res) => {
+  try {
+    const { userId, club } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found", success: false });
+    }
+
+    user.club = club;
+    await user.save();
+
+    return res.status(200).json({
+      message: "User added to club",
+      user,
+      success: true,
+    });
+
+  } catch (error) {
+    console.error("AddClubMember error:", error);
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+
+// ================= GET CLUB MEMBERS =================
+export const GetClubMembers = async (req, res) => {
+  try {
+    const { club } = req.params;
+
+    const users = await User.find({ club }).select("-password");
+
+    return res.status(200).json({
+      users,
+      success: true,
+    });
+
+  } catch (error) {
+    console.error("GetClubMembers error:", error);
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
@@ -115,7 +164,7 @@ export const ForgotPassword = async (req, res) => {
       from: process.env.EMAIL_USER,
       to: user.email,
       subject: "Password Reset",
-      html: `<p>Reset your password:</p><a href="${resetUrl}">${resetUrl}</a>`,
+      html: `<a href="${resetUrl}">Reset Password</a>`,
     });
 
     return res.status(200).json({
@@ -124,7 +173,6 @@ export const ForgotPassword = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("ForgotPassword error:", error);
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
@@ -140,7 +188,7 @@ export const ResetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid or expired token", success: false });
+      return res.status(400).json({ message: "Invalid token", success: false });
     }
 
     user.password = await bcryptjs.hash(newPassword, 10);
@@ -155,7 +203,6 @@ export const ResetPassword = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("ResetPassword error:", error);
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
@@ -166,7 +213,6 @@ export const GetProfile = async (req, res) => {
     const user = await User.findById(req.user._id).select("-password");
 
     return res.status(200).json({ user, success: true });
-
   } catch (error) {
     return res.status(500).json({ message: "Server error", success: false });
   }
@@ -188,9 +234,7 @@ export const UpdateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select("-password");
 
     return res.status(200).json({ user, success: true });
-
   } catch (error) {
-    console.error("UpdateProfile error:", error);
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
