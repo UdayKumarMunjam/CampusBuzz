@@ -31,11 +31,10 @@ connectDB();
 // ================= CONFIG =================
 const PORT = process.env.PORT || 8080;
 
-// 🔥 REQUIRED for cookies on Render
+// 🔥 REQUIRED for secure cookies (Render / proxy)
 app.set("trust proxy", 1);
 
-// ================= CORS (FIXED) =================
-// 🔥 IMPORTANT: use ONLY your main frontend URL
+// ================= CORS =================
 const FRONTEND_URL = "https://campus-buzz-jade.vercel.app";
 
 app.use(cors({
@@ -43,16 +42,17 @@ app.use(cors({
   credentials: true,
 }));
 
-// Handle preflight
-app.options("*", cors({
-  origin: FRONTEND_URL,
-  credentials: true,
-}));
+// ❌ REMOVED duplicate/unsafe preflight handler
 
 // ================= MIDDLEWARE =================
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
+
+// ================= HEALTH CHECK (IMPORTANT FOR RENDER) =================
+app.get("/", (req, res) => {
+  res.send("API is running 🚀");
+});
 
 // ================= ROUTES =================
 app.use("/api/user", userRoute);
@@ -124,6 +124,6 @@ io.on("connection", (socket) => {
 });
 
 // ================= START SERVER =================
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
