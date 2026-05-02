@@ -5,6 +5,7 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
+// Load env first
 dotenv.config();
 
 import connectDB from './config/database.js';
@@ -23,10 +24,12 @@ import messageRoute from "./routes/messageRoute.js";
 const app = express();
 const server = createServer(app);
 
-// 🔥 CONNECT DB
+// ✅ CONNECT DB
 connectDB();
 
-// 🔥 CORS FIX (IMPORTANT)
+const PORT = process.env.PORT || 8080;
+
+// ✅ CORS FIX (IMPORTANT)
 const allowedOrigins = [
   "http://localhost:5173",
   "https://campus-buzz-jade.vercel.app",
@@ -34,8 +37,14 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
+  credentials: true,
 }));
 
 // Middleware
@@ -54,7 +63,7 @@ app.use("/api/notices", noticeRoute);
 app.use("/api/placements", placementRoute);
 app.use("/api/messages", messageRoute);
 
-// 🔥 SOCKET.IO (ONLY ONCE)
+// ✅ SOCKET.IO FIX
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
@@ -62,7 +71,6 @@ const io = new Server(server, {
   }
 });
 
-// 🔥 SOCKET EVENTS (INSIDE CONNECTION)
 io.on('connection', (socket) => {
   console.log('Socket connected:', socket.id);
 
@@ -73,7 +81,6 @@ io.on('connection', (socket) => {
   socket.on('sendMessage', async (data) => {
     try {
       const { senderId, receiverId, content } = data;
-
       const { Message } = await import('./models/messageSchema.js');
 
       const message = await Message.create({
@@ -89,38 +96,23 @@ io.on('connection', (socket) => {
 
     } catch (error) {
       console.error('Socket sendMessage error:', error);
-      socket.emit('messageError', { error: 'Failed to send message' });
     }
   });
 
   socket.on('deleteMessage', async (data) => {
     try {
       const { messageId, userId } = data;
-
       const { Message } = await import('./models/messageSchema.js');
+
       const message = await Message.findById(messageId);
-
-      if (!message) {
-        io.to(userId).emit('messageDeleted', messageId);
-        return;
-      }
-
-      if (
-        message.sender.toString() !== userId &&
-        message.receiver.toString() !== userId
-      ) {
-        socket.emit('deleteError', { error: 'Not authorized' });
-        return;
-      }
+      if (!message) return;
 
       await Message.findByIdAndDelete(messageId);
 
-      io.to(message.sender.toString()).emit('messageDeleted', messageId);
-      io.to(message.receiver.toString()).emit('messageDeleted', messageId);
+      io.to(userId).emit('messageDeleted', messageId);
 
     } catch (error) {
       console.error('Socket deleteMessage error:', error);
-      socket.emit('deleteError', { error: 'Failed to delete message' });
     }
   });
 
@@ -129,8 +121,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// START SERVER
-const PORT = process.env.PORT || 8080;
+// Start server
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
