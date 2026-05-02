@@ -40,6 +40,7 @@ export const Login = async (req, res) => {
         secure: true,        // 🔥 FIXED
         sameSite: "none",    // 🔥 FIXED
         maxAge: 24 * 60 * 60 * 1000,
+        path: "/", 
       })
       .json({
         message: `Welcome back ${user.name}`,
@@ -61,6 +62,7 @@ export const Logout = (req, res) => {
       secure: true,
       sameSite: "none",
       expires: new Date(0),
+       path: "/",
     })
     .json({ message: "Logout successful", success: true });
 };
