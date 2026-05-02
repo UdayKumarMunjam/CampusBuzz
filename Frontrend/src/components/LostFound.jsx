@@ -128,7 +128,7 @@ export default function LostFound({ user }) {
     }
 
     try {
-      const response = await axios.post('http://localhost:8080/api/lostfound/sendMessage', { itemId: selectedItem._id, message: messageText }, { withCredentials: true });
+      const response = await axios.post('http://${API}/api/lostfound/sendMessage', { itemId: selectedItem._id, message: messageText }, { withCredentials: true });
       if (response.data.success) {
         toast.success("Message sent successfully");
         setShowMessageModal(false);

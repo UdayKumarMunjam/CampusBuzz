@@ -25,7 +25,7 @@ export default function FollowersList() {
       setLoading(true);
       try {
         // Fetch user profile to get followers
-        const response = await fetch(`http://localhost:8080/api/user/profile/${userId}`, {
+        const response = await fetch(`http://${API}/api/user/profile/${userId}`, {
           credentials: 'include'
         });
         if (response.ok) {

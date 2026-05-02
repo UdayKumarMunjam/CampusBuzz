@@ -91,7 +91,7 @@ export default function PostCard({ post }) {
 
     try {
       const response = await axios.delete(
-        `http://localhost:8080/api/posts/comment/${post._id}/${commentId}`,
+        `http://${API}/api/posts/comment/${post._id}/${commentId}`,
         { withCredentials: true }
       );
 
@@ -121,7 +121,7 @@ export default function PostCard({ post }) {
 
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/user/connect/${post.userId._id}/status`,
+        `http://${API}/api/user/connect/${post.userId._id}/status`,
         { withCredentials: true }
       );
       if (response.data.success) {
@@ -140,7 +140,7 @@ export default function PostCard({ post }) {
     setLoadingConnection(true);
     try {
       const response = await axios.post(
-        `http://localhost:8080/api/user/connect/${post.userId._id}`,
+        `http://${API}/api/user/connect/${post.userId._id}`,
         {},
         { withCredentials: true }
       );
@@ -163,7 +163,7 @@ export default function PostCard({ post }) {
     setLoadingConnection(true);
     try {
       const response = await axios.post(
-        `http://localhost:8080/api/user/connect/${post.userId._id}/accept`,
+        `http://${API}/api/user/connect/${post.userId._id}/accept`,
         {},
         { withCredentials: true }
       );
@@ -188,7 +188,7 @@ export default function PostCard({ post }) {
     setLoadingConnection(true);
     try {
       const response = await axios.post(
-        `http://localhost:8080/api/user/connect/${post.userId._id}/decline`,
+        `http://${API}/api/user/connect/${post.userId._id}/decline`,
         {},
         { withCredentials: true }
       );
@@ -212,7 +212,7 @@ export default function PostCard({ post }) {
     try {
       // Use the decline endpoint to cancel the pending request
       const response = await axios.post(
-        `http://localhost:8080/api/user/connect/${post.userId._id}/cancel`,
+        `http://${API}/api/user/connect/${post.userId._id}/cancel`,
         {},
         { withCredentials: true }
       );
@@ -233,7 +233,7 @@ export default function PostCard({ post }) {
     setLoadingUsers(true);
     try {
       // Get connected users only
-      const res = await axios.get(`http://localhost:8080/api/user/${user._id}/connections`, {
+      const res = await axios.get(`http://${API}/api/user/${user._id}/connections`, {
         withCredentials: true,
       });
       if (res.data.success) {

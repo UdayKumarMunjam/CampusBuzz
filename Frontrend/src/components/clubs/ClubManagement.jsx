@@ -27,7 +27,7 @@ export default function ClubManagement({ user }) {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/user/club/${clubId}/members`, {
+        const res = await axios.get(`http://${API}/api/user/club/${clubId}/members`, {
           withCredentials: true,
         });
         setMembers(res.data.members.map(member => ({
@@ -59,7 +59,7 @@ export default function ClubManagement({ user }) {
   const handleAddMember = async () => {
     if (newMemberName && newMemberEmail) {
       try {
-        const res = await axios.post('http://localhost:8080/api/user/club/member/add', {
+        const res = await axios.post('http://${API}/api/user/club/member/add', {
           name: newMemberName,
           email: newMemberEmail,
           role: newMemberRole,
@@ -71,7 +71,7 @@ export default function ClubManagement({ user }) {
         toast.success(res.data.message || 'Member added successfully');
 
         // Refresh members list
-        const membersRes = await axios.get(`http://localhost:8080/api/user/club/${clubId}/members`, {
+        const membersRes = await axios.get(`http://${API}/api/user/club/${clubId}/members`, {
           withCredentials: true,
         });
         setMembers(membersRes.data.members.map(member => ({
