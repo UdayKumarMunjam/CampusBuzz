@@ -31,32 +31,23 @@ connectDB();
 // ================= CONFIG =================
 const PORT = process.env.PORT || 8080;
 
-// 🔥 VERY IMPORTANT FIX (for secure cookies on Render)
+// 🔥 REQUIRED for cookies on Render
 app.set("trust proxy", 1);
 
-// ================= CORS =================
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://campus-buzz-jade.vercel.app",
-  "https://campus-buzz-gr717zcgz-munjamudaykumar-2771s-projects.vercel.app",
-  "https://campus-buzz-8mejq8fc7-munjamudaykumar-2771s-projects.vercel.app"
-];
+// ================= CORS (FIXED) =================
+// 🔥 IMPORTANT: use ONLY your main frontend URL
+const FRONTEND_URL = "https://campus-buzz-jade.vercel.app";
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
-    }
-  },
+  origin: FRONTEND_URL,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// Handle preflight requests
-app.options("*", cors());
+// Handle preflight
+app.options("*", cors({
+  origin: FRONTEND_URL,
+  credentials: true,
+}));
 
 // ================= MIDDLEWARE =================
 app.use(express.json({ limit: "50mb" }));
@@ -77,7 +68,7 @@ app.use("/api/messages", messageRoute);
 // ================= SOCKET.IO =================
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: FRONTEND_URL,
     credentials: true
   }
 });
