@@ -5,7 +5,6 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-// 🔥 LOAD ENV FIRST (VERY IMPORTANT)
 dotenv.config();
 
 import connectDB from './config/database.js';
@@ -24,30 +23,22 @@ import messageRoute from "./routes/messageRoute.js";
 const app = express();
 const server = createServer(app);
 
-// 🔥 DEBUG ENV (REMOVE LATER)
-console.log("MONGO_URI:", process.env.MONGO_URI);
-console.log("EMAIL_USER:", process.env.EMAIL_USER);
-console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? "Loaded ✅" : "Not Loaded ❌");
-
-// Socket setup
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:5173',
-    credentials: true
-  }
-});
-
-const PORT = process.env.PORT || 8080;
-
-// 🔥 CONNECT DB FIRST
+// 🔥 CONNECT DB
 connectDB();
 
-// Middleware
+// 🔥 CORS FIX (IMPORTANT)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://campus-buzz-jade.vercel.app",
+  "https://campus-buzz-gr717zcgz-munjamudaykumar-2771s-projects.vercel.app"
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
+  origin: allowedOrigins,
+  credentials: true
 }));
 
+// Middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
@@ -63,7 +54,15 @@ app.use("/api/notices", noticeRoute);
 app.use("/api/placements", placementRoute);
 app.use("/api/messages", messageRoute);
 
-// Socket.IO
+// 🔥 SOCKET.IO (ONLY ONCE)
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  }
+});
+
+// 🔥 SOCKET EVENTS (INSIDE CONNECTION)
 io.on('connection', (socket) => {
   console.log('Socket connected:', socket.id);
 
@@ -130,7 +129,8 @@ io.on('connection', (socket) => {
   });
 });
 
-// 🔥 START SERVER
+// START SERVER
+const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
