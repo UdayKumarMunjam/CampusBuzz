@@ -31,7 +31,10 @@ connectDB();
 // ================= CONFIG =================
 const PORT = process.env.PORT || 8080;
 
-// ================= CORS FIX =================
+// 🔥 VERY IMPORTANT FIX (for secure cookies on Render)
+app.set("trust proxy", 1);
+
+// ================= CORS =================
 const allowedOrigins = [
   "http://localhost:5173",
   "https://campus-buzz-jade.vercel.app",
@@ -40,13 +43,19 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// ✅ VERY IMPORTANT (fix preflight error)
+// Handle preflight requests
 app.options("*", cors());
 
 // ================= MIDDLEWARE =================
