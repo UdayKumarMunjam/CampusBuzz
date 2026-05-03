@@ -321,7 +321,7 @@ export const ResetPassword = async (req, res) => {
   }
 };
 
-// ✅ FIXED EXPORT POSITION ONLY
+// ================= ADMIN (ADDED ONLY) =================
 export const AddUserByAdmin = async (req, res) => {
   try {
     const { name, email, role } = req.body;
@@ -350,6 +350,46 @@ export const AddUserByAdmin = async (req, res) => {
 
   } catch (error) {
     console.error("AddUserByAdmin error:", error);
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+
+export const EditUserByAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const updates = req.body;
+
+    if (updates.password) {
+      updates.password = await bcryptjs.hash(updates.password, 10);
+    }
+
+    const user = await User.findByIdAndUpdate(userId, updates, { new: true }).select("-password");
+
+    return res.json({ user, success: true });
+
+  } catch {
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+
+export const DeleteUserByAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    await User.findByIdAndDelete(userId);
+
+    return res.json({ success: true });
+
+  } catch {
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    return res.json({ users, success: true });
+  } catch {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
